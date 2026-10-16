@@ -1,0 +1,100 @@
+.records-heading {
+  display: flex;
+  min-height: 110px;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 23px;
+}
+
+.records-heading h1 {
+  margin: 0 0 5px;
+  color: #1d3e32;
+  font-size: 25px;
+  font-weight: 650;
+}
+
+.record-count {
+  margin-bottom: 4px;
+  color: #75847e;
+  font-size: 11px;
+}
+
+.records-panel {
+  min-height: 240px;
+  overflow: hidden;
+}
+
+.records-table-wrap {
+  overflow-x: auto;
+}
+
+.records-table-wrap th:first-child,
+.records-table-wrap td:first-child {
+  padding-left: 20px;
+}
+
+.records-empty {
+  display: flex;
+  min-height: 238px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 28px;
+  color: #85928b;
+  text-align: center;
+}
+
+.records-empty strong {
+  color: #40594d;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.records-empty > span:last-child {
+  font-size: 11px;
+}
+
+.records-empty-mark {
+  width: 31px;
+  height: 31px;
+  margin-bottom: 3px;
+  border: 1px solid #d8e5da;
+  border-radius: 50%;
+  background: #f2f7f1;
+}
+
+.overview-content .empty-panel-state {
+  display: flex;
+  min-height: 172px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 20px;
+  text-align: center;
+}
+
+.empty-panel-state strong {
+  color: #40594d;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.empty-panel-state span {
+  color: #89968f;
+  font-size: 10px;
+}
+
+@media (max-width: 560px) {
+  .records-heading {
+    min-height: 85px;
+    align-items: flex-start;
+    margin-bottom: 18px;
+  }
+
+  .records-heading h1 {
+    font-size: 22px;
+  }
+}
