@@ -71,6 +71,8 @@
 .top-date { display: flex; align-items: center; gap: 7px; color: #6c7d73; font-size: 11px; white-space: nowrap; }
 .top-date svg { color: #8a9b91; }
 .page-content { max-width: 1500px; margin: 0 auto; padding: 38px 38px 24px; }
+.app-error { display: flex; align-items: center; gap: 12px; margin: 14px 38px 0; padding: 11px 14px; border: 1px solid #f0d8d3; border-radius: 5px; color: #8e4139; background: #fff6f4; font-size: 12px; }
+.app-error button { padding: 4px 8px; border: 1px solid #e9c5bd; border-radius: 4px; color: #8e4139; background: #fff; cursor: pointer; }
 .welcome-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 27px; }
 .eyebrow { margin: 0 0 8px; color: #8a9a91; font-size: 9px; font-weight: 700; letter-spacing: 1.35px; }
 .welcome-row h1 { margin: 0 0 5px; color: #1d3e32; font-size: 26px; font-weight: 650; letter-spacing: 0; }

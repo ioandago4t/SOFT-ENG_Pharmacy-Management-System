@@ -1,0 +1,88 @@
+.customers-page > .records-page {
+  padding-top: 24px;
+}
+
+.customer-entry-panel {
+  margin: 28px 38px 0;
+  padding: 20px;
+}
+
+.customer-entry-heading h2 {
+  margin: 0 0 5px;
+  color: #1d3e32;
+  font-size: 15px;
+}
+
+.customer-entry-heading p {
+  margin: 0 0 17px;
+  color: #7c8b83;
+  font-size: 11px;
+}
+
+.customer-entry-form {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: end;
+  gap: 13px;
+}
+
+.customer-entry-form label {
+  display: grid;
+  gap: 6px;
+  color: #40594d;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.customer-entry-form input,
+.customer-entry-form select {
+  width: 100%;
+  min-height: 37px;
+  padding: 8px 10px;
+  border: 1px solid #dfe8e1;
+  border-radius: 5px;
+  outline: none;
+  color: #29483a;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.customer-entry-form input:focus,
+.customer-entry-form select:focus {
+  border-color: #8fbea0;
+  box-shadow: 0 0 0 3px #eaf4ed;
+}
+
+.customer-submit {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  grid-column: 1 / -1;
+}
+
+.customer-form-error {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 900px) {
+  .customer-entry-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .customer-submit {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 560px) {
+  .customer-entry-panel {
+    margin: 18px 14px 0;
+    padding: 16px;
+  }
+
+  .customer-entry-form {
+    grid-template-columns: 1fr;
+  }
+}

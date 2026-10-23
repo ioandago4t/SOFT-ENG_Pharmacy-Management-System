@@ -1,16 +1,19 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import './App.css'
 import Customers from './pages/Customers.jsx'
+import Courses from './pages/Courses.jsx'
 import Inventory from './pages/Inventory.jsx'
 import Prescriptions from './pages/Prescriptions.jsx'
 import Reports from './pages/Reports.jsx'
 import Settings from './pages/Settings.jsx'
+import { getCourses, getCustomers, getPrescriptions } from './api.js'
 
 const navigation = [
   { label: 'Overview', icon: 'grid' },
   { label: 'Inventory', icon: 'box' },
   { label: 'Prescriptions', icon: 'file' },
   { label: 'Customers', icon: 'users' },
+  { label: 'Courses', icon: 'courses' },
   { label: 'Reports', icon: 'chart' },
 ]
 
@@ -21,6 +24,7 @@ function Icon({ name, size = 18 }) {
     box: <><path d="m3.5 7 8.5-4 8.5 4v10L12 21l-8.5-4V7Z" /><path d="m3.8 7.2 8.2 4 8.2-4M12 11.5V21" /></>,
     file: <><path d="M7 3.5h7l5 5v12H7a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2Z" /><path d="M14 3.5v5h5M9 13h6M9 17h6" /></>,
     users: <><path d="M16 20v-1.5a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4V20" /><circle cx="9.5" cy="7.5" r="3.5" /><path d="M17 11a3.5 3.5 0 1 0-1-6.8M17 14.5a4 4 0 0 1 4 4V20" /></>,
+    courses: <><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5v-16Z" /><path d="M4 5.5v16M8 7h8M8 11h8M8 15h5" /></>,
     chart: <><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></>,
     settings: <><circle cx="12" cy="12" r="3" /><path d="m19.4 15 .1.1 1.2.9-1.2 2.1-1.4-.6a7.9 7.9 0 0 1-1.6.9l-.2 1.5h-2.5l-.3-1.5a7.9 7.9 0 0 1-1.6-.9l-1.4.6-1.2-2.1 1.2-.9a7.5 7.5 0 0 1 0-1.9l-1.2-.9 1.2-2.1 1.4.6a7.9 7.9 0 0 1 1.6-.9l.3-1.5h2.5l.2 1.5a7.9 7.9 0 0 1 1.6.9l1.4-.6 1.2 2.1-1.2.9a7.5 7.5 0 0 1 0 1.8Z" transform="translate(-1 -1) scale(1.08)" /></>,
     search: <><circle cx="10.8" cy="10.8" r="6.3" /><path d="m15.5 15.5 4.2 4.2" /></>,
@@ -36,7 +40,74 @@ function Icon({ name, size = 18 }) {
 function App() {
   const [activePage, setActivePage] = useState('Overview')
   const [query, setQuery] = useState('')
-  const [records] = useState({ inventory: [], prescriptions: [], customers: [], sales: [], activity: [] })
+  const [records, setRecords] = useState({ inventory: [], prescriptions: [], customers: [], sales: [], activity: [] })
+  const [courses, setCourses] = useState([])
+  const [loadError, setLoadError] = useState('')
+  const [loading, setLoading] = useState(true)
+  const refreshData = useCallback(async () => {
+    const [courseRecords, prescriptionRecords, customerRecords] = await Promise.all([getCourses(), getPrescriptions(), getCustomers()])
+    setCourses(courseRecords)
+    setRecords((current) => ({ ...current, prescriptions: prescriptionRecords, customers: customerRecords }))
+    setLoadError('')
+  }, [])
+
+  useEffect(() => {
+    let mounted = true
+    Promise.all([getCourses(), getPrescriptions(), getCustomers()])
+      .then(([courseRecords, prescriptionRecords, customerRecords]) => {
+        if (!mounted) return
+        setCourses(courseRecords)
+        setRecords((current) => ({ ...current, prescriptions: prescriptionRecords, customers: customerRecords }))
+      })
+      .catch((error) => {
+        if (mounted) setLoadError(error.message)
+      })
+      .finally(() => {
+        if (mounted) setLoading(false)
+      })
+    return () => { mounted = false }
+  }, [])
+
+  async function handlePrescriptionCreated(prescription) {
+    setRecords((current) => ({ ...current, prescriptions: [prescription, ...current.prescriptions] }))
+    try {
+      const customerRecords = await getCustomers()
+      setRecords((current) => ({ ...current, customers: customerRecords }))
+    } catch (error) {
+      setLoadError(error.message)
+    }
+  }
+
+  function handleCustomerCreated(customer) {
+    setRecords((current) => ({ ...current, customers: [...current.customers, customer].sort((a, b) => a.name.localeCompare(b.name)) }))
+  }
+
+  function handleCourseSaved(course) {
+    setCourses((current) => [...current.filter((item) => item.id !== course.id), course].sort((a, b) => a.name.localeCompare(b.name)))
+    setRecords((current) => ({
+      ...current,
+      customers: current.customers.map((customer) => (
+        customer.courseId === course.id ? { ...customer, course: course.name } : customer
+      )),
+      prescriptions: current.prescriptions.map((prescription) => (
+        prescription.courseId === course.id ? { ...prescription, course: course.name } : prescription
+      )),
+    }))
+  }
+
+  function handleCourseDeleted(courseId) {
+    setCourses((current) => current.filter((course) => course.id !== courseId))
+    setRecords((current) => ({
+      ...current,
+      customers: current.customers.map((customer) => (
+        customer.courseId === courseId ? { ...customer, courseId: null, course: null } : customer
+      )),
+      prescriptions: current.prescriptions.map((prescription) => (
+        prescription.courseId === courseId ? { ...prescription, courseId: null, course: null } : prescription
+      )),
+    }))
+  }
+
   const filteredInventory = records.inventory.filter((item) => `${item.name ?? ''} ${item.category ?? ''}`.toLowerCase().includes(query.toLowerCase()))
   const today = new Intl.DateTimeFormat('en', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).format(new Date())
   const dateLabel = new Intl.DateTimeFormat('en', { weekday: 'long', month: 'long', day: 'numeric' }).format(new Date())
@@ -47,8 +118,9 @@ function App() {
 
   function renderPage() {
     if (activePage === 'Inventory') return <Inventory items={filteredInventory} />
-    if (activePage === 'Prescriptions') return <Prescriptions items={records.prescriptions} />
-    if (activePage === 'Customers') return <Customers items={records.customers} />
+    if (activePage === 'Prescriptions') return <Prescriptions items={records.prescriptions} courses={courses} onPrescriptionCreated={handlePrescriptionCreated} onGoToCourses={() => setActivePage('Courses')} />
+    if (activePage === 'Customers') return <Customers items={records.customers} courses={courses} onCustomerCreated={handleCustomerCreated} onGoToCourses={() => setActivePage('Courses')} />
+    if (activePage === 'Courses') return <Courses courses={courses} onCourseSaved={handleCourseSaved} onCourseDeleted={handleCourseDeleted} />
     if (activePage === 'Reports') return <Reports items={records.sales} />
     if (activePage === 'Settings') return <Settings />
 
@@ -116,6 +188,7 @@ function App() {
             <div className="top-date"><Icon name="clock" />{today}</div>
           </div>
         </header>
+        {loadError && <div className="app-error" role="alert">{loading ? 'Loading records… ' : 'Could not load saved records: '}{loadError}<button type="button" onClick={() => { setLoading(true); refreshData().catch((error) => setLoadError(error.message)).finally(() => setLoading(false)) }}>Retry</button></div>}
         {renderPage()}
       </main>
     </div>

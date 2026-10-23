@@ -3,3 +3,5 @@ dist/
 .env
 .env.*
 !.env.example
+pharmacy.sqlite3
+pharmacy.sqlite3-*
